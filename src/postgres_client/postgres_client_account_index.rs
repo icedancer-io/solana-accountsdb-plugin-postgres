@@ -91,7 +91,7 @@ impl SimplePostgresClient {
 
         stmt = format!("{} {}", stmt, handle_conflict);
 
-        info!("{}", stmt);
+        // info!("{}", stmt);
         let bulk_stmt = client.prepare(&stmt);
 
         match bulk_stmt {
@@ -151,12 +151,12 @@ impl SimplePostgresClient {
                 values.push(&index.slot);
             }
             measure.stop();
-            inc_new_counter_debug!(
-                "geyser-plugin-postgres-prepare-index-values-us",
-                measure.as_us() as usize,
-                10000,
-                10000
-            );
+            // inc_new_counter_debug!(
+            //     "geyser-plugin-postgres-prepare-index-values-us",
+            //     measure.as_us() as usize,
+            //     10000,
+            //     10000
+            // );
 
             let mut measure = Measure::start("geyser-plugin-postgres-update-index-account");
             let result = client.query(query, &values);
@@ -173,18 +173,18 @@ impl SimplePostgresClient {
             }
 
             measure.stop();
-            inc_new_counter_debug!(
-                "geyser-plugin-postgres-update-index-us",
-                measure.as_us() as usize,
-                10000,
-                10000
-            );
-            inc_new_counter_debug!(
-                "geyser-plugin-postgres-update-index-count",
-                batch_size,
-                10000,
-                10000
-            );
+            // inc_new_counter_debug!(
+            //     "geyser-plugin-postgres-update-index-us",
+            //     measure.as_us() as usize,
+            //     10000,
+            //     10000
+            // );
+            // inc_new_counter_debug!(
+            //     "geyser-plugin-postgres-update-index-count",
+            //     batch_size,
+            //     10000,
+            //     10000
+            // );
         }
         Ok(())
     }

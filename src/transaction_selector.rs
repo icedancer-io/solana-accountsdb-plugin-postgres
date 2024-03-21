@@ -23,10 +23,10 @@ impl TransactionSelector {
     /// To select all vote transactions, use ["all_votes"]
     /// To select transactions mentioning specific addresses use ["<pubkey1>", "<pubkey2>", ...]
     pub fn new(mentioned_addresses: &[String]) -> Self {
-        info!(
-            "Creating TransactionSelector from addresses: {:?}",
-            mentioned_addresses
-        );
+        // info!(
+        //     "Creating TransactionSelector from addresses: {:?}",
+        //     mentioned_addresses
+        // );
 
         let select_all_transactions = mentioned_addresses
             .iter()

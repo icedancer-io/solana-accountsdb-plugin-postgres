@@ -371,7 +371,7 @@ impl SimplePostgresClient {
 
         stmt = format!("{} {}", stmt, handle_conflict);
 
-        info!("{}", stmt);
+        // info!("{}", stmt);
         let bulk_stmt = client.prepare(&stmt);
 
         match bulk_stmt {
@@ -644,12 +644,12 @@ impl SimplePostgresClient {
                 values.push(&account.txn_signature);
             }
             measure.stop();
-            inc_new_counter_debug!(
-                "geyser-plugin-postgres-prepare-values-us",
-                measure.as_us() as usize,
-                10000,
-                10000
-            );
+            // inc_new_counter_debug!(
+            //     "geyser-plugin-postgres-prepare-values-us",
+            //     measure.as_us() as usize,
+            //     10000,
+            //     10000
+            // );
 
             let mut measure = Measure::start("geyser-plugin-postgres-update-account");
             let client = self.client.get_mut().unwrap();
@@ -669,18 +669,18 @@ impl SimplePostgresClient {
             }
 
             measure.stop();
-            inc_new_counter_debug!(
-                "geyser-plugin-postgres-update-account-us",
-                measure.as_us() as usize,
-                10000,
-                10000
-            );
-            inc_new_counter_debug!(
-                "geyser-plugin-postgres-update-account-count",
-                self.batch_size,
-                10000,
-                10000
-            );
+            // inc_new_counter_debug!(
+            //     "geyser-plugin-postgres-update-account-us",
+            //     measure.as_us() as usize,
+            //     10000,
+            //     10000
+            // );
+            // inc_new_counter_debug!(
+            //     "geyser-plugin-postgres-update-account-count",
+            //     self.batch_size,
+            //     10000,
+            //     10000
+            // );
         }
         Ok(())
     }
@@ -765,7 +765,7 @@ impl SimplePostgresClient {
     }
 
     pub fn new(config: &GeyserPluginPostgresConfig) -> Result<Self, GeyserPluginError> {
-        info!("Creating SimplePostgresClient...");
+        // info!("Creating SimplePostgresClient...");
         let mut client = Self::connect_to_db(config)?;
         let bulk_account_insert_stmt =
             Self::build_bulk_account_insert_statement(&mut client, config)?;
@@ -827,7 +827,7 @@ impl SimplePostgresClient {
             None
         };
 
-        info!("Created SimplePostgresClient.");
+        // info!("Created SimplePostgresClient.");
         Ok(Self {
             batch_size,
             pending_account_updates: Vec::with_capacity(batch_size),
@@ -904,7 +904,7 @@ impl PostgresClient for SimplePostgresClient {
         parent: Option<u64>,
         status: SlotStatus,
     ) -> Result<(), GeyserPluginError> {
-        info!("Updating slot {:?} at with status {:?}", slot, status);
+        // info!("Updating slot {:?} at with status {:?}", slot, status);
 
         let client = self.client.get_mut().unwrap();
 
@@ -985,12 +985,12 @@ impl PostgresClientWorker {
             let mut measure = Measure::start("geyser-plugin-postgres-worker-recv");
             let work = receiver.recv_timeout(Duration::from_millis(500));
             measure.stop();
-            inc_new_counter_debug!(
-                "geyser-plugin-postgres-worker-recv-us",
-                measure.as_us() as usize,
-                100000,
-                100000
-            );
+            // inc_new_counter_debug!(
+            //     "geyser-plugin-postgres-worker-recv-us",
+            //     measure.as_us() as usize,
+            //     100000,
+            //     100000
+            // );
             match work {
                 Ok(work) => match work {
                     DbWorkItem::UpdateAccount(request) => {
@@ -1074,7 +1074,7 @@ pub struct ParallelPostgresClient {
 
 impl ParallelPostgresClient {
     pub fn new(config: &GeyserPluginPostgresConfig) -> Result<Self, GeyserPluginError> {
-        info!("Creating ParallelPostgresClient...");
+        // info!("Creating ParallelPostgresClient...");
         let (sender, receiver) = bounded(MAX_ASYNC_REQUESTS);
         let exit_worker = Arc::new(AtomicBool::new(false));
         let mut workers = Vec::default();
@@ -1124,7 +1124,7 @@ impl ParallelPostgresClient {
             workers.push(worker);
         }
 
-        info!("Created ParallelPostgresClient.");
+        // info!("Created ParallelPostgresClient.");
         Ok(Self {
             last_report: AtomicInterval::default(),
             workers,
@@ -1160,16 +1160,18 @@ impl ParallelPostgresClient {
         slot: u64,
         is_startup: bool,
     ) -> Result<(), GeyserPluginError> {
+        info!("updating account");
+
         if !is_startup && account.txn.is_none() {
             // we are not interested in accountsdb internal bookeeping updates
             return Ok(());
         }
 
         if self.last_report.should_update(30000) {
-            datapoint_debug!(
-                "postgres-plugin-stats",
-                ("message-queue-length", self.sender.len() as i64, i64),
-            );
+            // datapoint_debug!(
+            //     "postgres-plugin-stats",
+            //     ("message-queue-length", self.sender.len() as i64, i64),
+            // );
         }
         let mut measure = Measure::start("geyser-plugin-posgres-create-work-item");
         let wrk_item = DbWorkItem::UpdateAccount(Box::new(UpdateAccountRequest {
@@ -1179,12 +1181,12 @@ impl ParallelPostgresClient {
 
         measure.stop();
 
-        inc_new_counter_debug!(
-            "geyser-plugin-posgres-create-work-item-us",
-            measure.as_us() as usize,
-            100000,
-            100000
-        );
+        // inc_new_counter_debug!(
+        //     "geyser-plugin-posgres-create-work-item-us",
+        //     measure.as_us() as usize,
+        //     100000,
+        //     100000
+        // );
 
         let mut measure = Measure::start("geyser-plugin-posgres-send-msg");
 
@@ -1199,12 +1201,12 @@ impl ParallelPostgresClient {
         }
 
         measure.stop();
-        inc_new_counter_debug!(
-            "geyser-plugin-posgres-send-msg-us",
-            measure.as_us() as usize,
-            100000,
-            100000
-        );
+        // inc_new_counter_debug!(
+        //     "geyser-plugin-posgres-send-msg-us",
+        //     measure.as_us() as usize,
+        //     100000,
+        //     100000
+        // );
 
         Ok(())
     }
@@ -1215,6 +1217,7 @@ impl ParallelPostgresClient {
         parent: Option<u64>,
         status: SlotStatus,
     ) -> Result<(), GeyserPluginError> {
+        info!("in update_slot_status()");
         if let Err(err) = self
             .sender
             .send(DbWorkItem::UpdateSlot(Box::new(UpdateSlotRequest {
@@ -1223,10 +1226,13 @@ impl ParallelPostgresClient {
                 slot_status: status,
             })))
         {
+            info!("error SlotStatusUpdateError");
             return Err(GeyserPluginError::SlotStatusUpdateError {
                 msg: format!("Failed to update the slot {:?}, error: {:?}", slot, err),
             });
         }
+        info!("update_slot_status() completed");
+
         Ok(())
     }
 
@@ -1234,11 +1240,14 @@ impl ParallelPostgresClient {
         &self,
         block_info: &ReplicaBlockInfoV3,
     ) -> Result<(), GeyserPluginError> {
+        info!("in update_block_metadata(), slot {} blockhash {}", block_info.slot, block_info.blockhash);
+        // this is causing leak
         if let Err(err) = self.sender.send(DbWorkItem::UpdateBlockMetadata(Box::new(
             UpdateBlockMetadataRequest {
                 block_info: DbBlockInfo::from(block_info),
             },
         ))) {
+            info!("error SlotStatusUpdateError");
             return Err(GeyserPluginError::SlotStatusUpdateError {
                 msg: format!(
                     "Failed to update the block metadata at slot {:?}, error: {:?}",
@@ -1246,11 +1255,12 @@ impl ParallelPostgresClient {
                 ),
             });
         }
+        info!("update_block_metadata() completed");
         Ok(())
     }
 
     pub fn notify_end_of_startup(&self) -> Result<(), GeyserPluginError> {
-        info!("Notifying the end of startup");
+        // info!("Notifying the end of startup");
         // Ensure all items in the queue has been received by the workers
         while !self.sender.is_empty() {
             sleep(Duration::from_millis(100));
@@ -1261,15 +1271,15 @@ impl ParallelPostgresClient {
         while self.startup_done_count.load(Ordering::Relaxed)
             != self.initialized_worker_count.load(Ordering::Relaxed)
         {
-            info!(
-                "Startup done count: {}, good worker thread count: {}",
-                self.startup_done_count.load(Ordering::Relaxed),
-                self.initialized_worker_count.load(Ordering::Relaxed)
-            );
+            // info!(
+            //     "Startup done count: {}, good worker thread count: {}",
+            //     self.startup_done_count.load(Ordering::Relaxed),
+            //     self.initialized_worker_count.load(Ordering::Relaxed)
+            // );
             sleep(Duration::from_millis(100));
         }
 
-        info!("Done with notifying the end of startup");
+        // info!("Done with notifying the end of startup");
         Ok(())
     }
 }
@@ -1290,10 +1300,10 @@ impl PostgresClientBuilder {
                     let batch_slot_bound = on_load_client
                         .get_highest_available_slot()?
                         .saturating_sub(SAFE_BATCH_STARTING_SLOT_CUSHION);
-                    info!(
-                        "Set batch_optimize_by_skiping_older_slots to {}",
-                        batch_slot_bound
-                    );
+                    // info!(
+                    //     "Set batch_optimize_by_skiping_older_slots to {}",
+                    //     batch_slot_bound
+                    // );
                     Some(batch_slot_bound)
                 }
                 false => None,

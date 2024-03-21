@@ -1,0 +1,13 @@
+{
+	"libpath": "/home/hp/Documents/solana-indexer/solana-accountsdb-plugin-postgres/target/release/libsolana_geyser_plugin_postgres.so",
+	"connection_str": "host=localhost user=postgres dbname=solana password=password port=5432",
+	"threads": 4,
+	"batch_size": 50,
+	"panic_on_db_errors": true,
+	"accounts_selector" : {
+		"accounts" : ["HU23r7UoZbqTUuh3vA7emAGztFtqwTeVips789vqxxBw"]
+	},
+	"transaction_selector": {
+		"mentions": []
+	}
+}
