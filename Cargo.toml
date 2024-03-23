@@ -30,7 +30,8 @@ solana-logger = { version = "1.16.17" }
 solana-measure = { version = "1.16.17" }
 solana-metrics = { version = "1.16.17" }
 solana-runtime = { version = "1.16.17" }
-solana-sdk = { version = "1.16.17" }
+solana-sdk = { version = "=1.16.17" }
+bumpalo = { version = "=3.14.0" }
 solana-transaction-status = { version = "1.16.17" }
 thiserror = "1.0.37"
 tokio-postgres = "0.7.7"

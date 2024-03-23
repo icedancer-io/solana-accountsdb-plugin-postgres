@@ -42,8 +42,17 @@ impl TransactionSelector {
         if select_all_vote_transactions {
             return Self {
                 mentioned_addresses: HashSet::default(),
-                select_all_transactions,
+                select_all_transactions: false,
                 select_all_vote_transactions: true,
+            };
+        }
+
+        let select_all_non_vote_transactions = mentioned_addresses.iter().any(|key| key == "non_votes");
+        if select_all_non_vote_transactions {
+            return Self {
+                mentioned_addresses: HashSet::default(),
+                select_all_transactions: true,
+                select_all_vote_transactions: false,
             };
         }
 
@@ -69,9 +78,12 @@ impl TransactionSelector {
             return false;
         }
 
-        if self.select_all_transactions || (self.select_all_vote_transactions && is_vote) {
+        if (self.select_all_transactions && self.select_all_vote_transactions)
+            || (self.select_all_transactions && !self.select_all_vote_transactions && !is_vote)
+            || (self.select_all_vote_transactions && is_vote) {
             return true;
         }
+
         for address in mentioned_addresses {
             if self.mentioned_addresses.contains(address.as_ref()) {
                 return true;
